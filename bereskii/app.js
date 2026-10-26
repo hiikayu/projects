@@ -22,12 +22,10 @@ composer.addPass(new RenderPass(scene, camera));
 const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.6, 0.4, 0.2);
 composer.addPass(bloomPass);
 
-// AUDIO
 const noteSound = new Audio('assets/note.mp3');
 const bgmNorm = new Audio('assets/norm.mp3'); bgmNorm.loop = true; bgmNorm.volume = 0.5;
 const bgmScary = new Audio('assets/scary.mp3'); bgmScary.loop = true; bgmScary.volume = 0.6;
 
-// ROOM BUILD
 const roomGroup = new THREE.Group(); scene.add(roomGroup);
 const wallMat = new THREE.MeshStandardMaterial({ color: 0xffeebb, roughness: 0.9 });
 const darkWallMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
@@ -50,6 +48,13 @@ const monitor = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.2, 1), new THREE.Mes
 const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.0), screenMat); screen.position.set(0, 3.1, -6.29); roomGroup.add(screen);
 const windowMesh = new THREE.Mesh(new THREE.PlaneGeometry(4, 3), windowMat); windowMesh.position.set(4, 4, -7.9); roomGroup.add(windowMesh);
 
+// Colliders mapping (x, z, width, depth)
+const colliders = [
+    { x: -5.5, z: -4, w: 4, d: 7 }, // Bed
+    { x: 6, z: 6, w: 3, d: 2 }, // Closet
+    { x: 0, z: -6.5, w: 5, d: 2.5 } // Desk
+];
+
 const toys = [];
 for(let i=0; i<5; i++) {
     const toy = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff }));
@@ -60,46 +65,33 @@ const ambientLight = new THREE.AmbientLight(0xffddaa, 0.8); scene.add(ambientLig
 const ceilingLight = new THREE.PointLight(0xffcc88, 15, 20); ceilingLight.position.set(0, 7, 0); scene.add(ceilingLight);
 const screenLight = new THREE.PointLight(0x88ff88, 0, 8); screenLight.position.set(0, 3.5, -5); scene.add(screenLight);
 
-// --- RESTORED CHIBI CHARACTER MODEL ---
 const character = new THREE.Group();
 const skinMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.7 }); 
 const clothesMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.9 }); 
 const hairMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 1.0 }); 
 const eyeMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 1.0 });
 
-// Blush Generator
-const blushCanvas = document.createElement('canvas');
-blushCanvas.width = 64; blushCanvas.height = 64;
+const blushCanvas = document.createElement('canvas'); blushCanvas.width = 64; blushCanvas.height = 64;
 const ctx = blushCanvas.getContext('2d');
 const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
 gradient.addColorStop(0, 'rgba(150, 100, 100, 0.6)'); gradient.addColorStop(1, 'rgba(150, 100, 100, 0)');
 ctx.fillStyle = gradient; ctx.fillRect(0, 0, 64, 64);
-const blushTex = new THREE.CanvasTexture(blushCanvas);
-const blushMat = new THREE.MeshStandardMaterial({ map: blushTex, transparent: true, depthWrite: false, roughness: 1.0 });
+const blushMat = new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(blushCanvas), transparent: true, depthWrite: false, roughness: 1.0 });
 
 const headGroup = new THREE.Group(); headGroup.position.y = 1.3;
-const headGeo = new THREE.SphereGeometry(0.9, 16, 12); headGeo.scale(1.1, 0.9, 1.0);
-headGroup.add(new THREE.Mesh(headGeo, skinMat));
-
+const headGeo = new THREE.SphereGeometry(0.9, 16, 12); headGeo.scale(1.1, 0.9, 1.0); headGroup.add(new THREE.Mesh(headGeo, skinMat));
 const hairGeo = new THREE.SphereGeometry(0.95, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.6); hairGeo.scale(1.15, 1.0, 1.1);
 const hair = new THREE.Mesh(hairGeo, hairMat); hair.position.y = 0.15; hair.position.z = -0.05; headGroup.add(hair);
-
 const spikeGeo = new THREE.ConeGeometry(0.2, 0.5, 5);
 const spike1 = new THREE.Mesh(spikeGeo, hairMat); spike1.position.set(0, 0.9, 0.2); spike1.rotation.x = -0.2; headGroup.add(spike1);
 const spike2 = new THREE.Mesh(spikeGeo, hairMat); spike2.position.set(-0.4, 0.8, -0.1); spike2.rotation.z = 0.5; spike2.rotation.x = -0.3; headGroup.add(spike2);
 const spike3 = new THREE.Mesh(spikeGeo, hairMat); spike3.position.set(0.4, 0.8, -0.1); spike3.rotation.z = -0.5; spike3.rotation.x = -0.3; headGroup.add(spike3);
-
 const eyeGeo = new THREE.PlaneGeometry(0.2, 0.3);
 const leftEye = new THREE.Mesh(eyeGeo, eyeMat); leftEye.position.set(-0.35, -0.1, 0.92); leftEye.rotation.y = -0.15; headGroup.add(leftEye);
 const rightEye = new THREE.Mesh(eyeGeo, eyeMat); rightEye.position.set(0.35, -0.1, 0.92); rightEye.rotation.y = 0.15; headGroup.add(rightEye);
-
-const mouthGeo = new THREE.BoxGeometry(0.08, 0.015, 0.02);
-const mouth = new THREE.Mesh(mouthGeo, eyeMat); mouth.position.set(0, -0.28, 0.93); headGroup.add(mouth);
-
-const blushGeo = new THREE.PlaneGeometry(0.4, 0.4);
-const leftBlush = new THREE.Mesh(blushGeo, blushMat); leftBlush.position.set(-0.4, -0.22, 0.89); leftBlush.scale.set(1.2, 0.6, 1); leftBlush.rotation.y = -0.2; headGroup.add(leftBlush);
-const rightBlush = new THREE.Mesh(blushGeo, blushMat); rightBlush.position.set(0.4, -0.22, 0.89); rightBlush.scale.set(1.2, 0.6, 1); rightBlush.rotation.y = 0.2; headGroup.add(rightBlush);
-
+const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.015, 0.02), eyeMat); mouth.position.set(0, -0.28, 0.93); headGroup.add(mouth);
+const leftBlush = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.4), blushMat); leftBlush.position.set(-0.4, -0.22, 0.89); leftBlush.scale.set(1.2, 0.6, 1); leftBlush.rotation.y = -0.2; headGroup.add(leftBlush);
+const rightBlush = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.4), blushMat); rightBlush.position.set(0.4, -0.22, 0.89); rightBlush.scale.set(1.2, 0.6, 1); rightBlush.rotation.y = 0.2; headGroup.add(rightBlush);
 character.add(headGroup);
 
 const body = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.4, 0.7, 10), clothesMat); body.position.y = 0.65; character.add(body);
@@ -112,19 +104,15 @@ const leftLegPivot = new THREE.Group(); leftLegPivot.position.set(-0.2, 0.4, 0);
 const rightLegPivot = new THREE.Group(); rightLegPivot.position.set(0.2, 0.4, 0); const rightLeg = new THREE.Mesh(legGeo, skinMat); rightLeg.position.y = -0.15; const rightFoot = new THREE.Mesh(footGeo, skinMat); rightFoot.position.y = -0.35; rightFoot.position.z = 0.05; rightLegPivot.add(rightLeg); rightLegPivot.add(rightFoot); character.add(rightLegPivot);
 scene.add(character);
 
-// TALL DARK FIGURE (Older Self)
 const darkFigure = new THREE.Group();
 const darkMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 1 });
 const figBody = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 4.5, 8), darkMat); figBody.position.y = 2.25; darkFigure.add(figBody);
 const figHead = new THREE.Mesh(new THREE.SphereGeometry(0.6, 8, 8), darkMat); figHead.position.set(0, 4.8, 0.3); figHead.rotation.x = 0.5; darkFigure.add(figHead);
-// Start position (buried down, rises later)
-darkFigure.position.set(0, -6, -4);
+darkFigure.position.set(6, 0, 6);
 darkFigure.visible = false;
 scene.add(darkFigure);
 
 let playerModel = character;
-
-// --- STATE MACHINE & LOGIC ---
 let gameState = "INTRO";
 let isInteracting = false;
 let currentFocusKey = null;
@@ -143,36 +131,35 @@ const interactBtn = document.getElementById('interact-btn');
 const noiseOverlay = document.getElementById('noise-overlay');
 let logQueue = [];
 
+function checkCollision(nx, nz) {
+    for (let c of colliders) {
+        if (Math.abs(nx - c.x) < c.w/2 + 0.3 && Math.abs(nz - c.z) < c.d/2 + 0.3) return true;
+    }
+    return false;
+}
+
 function createLogWindow(text, isGlitch = false, randomSize = false) {
     const win = document.createElement('div');
     win.className = 'log-container window';
     
-    // Random position within screen bounds
-    const maxX = window.innerWidth - (randomSize ? 600 : 450);
+    const maxX = window.innerWidth - (randomSize ? 700 : 550);
     const maxY = window.innerHeight - (randomSize ? 300 : 200);
     win.style.left = Math.max(20, Math.random() * maxX) + 'px';
     win.style.top = Math.max(20, Math.random() * maxY) + 'px';
 
-    if (randomSize) {
-        win.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
-    }
+    if (randomSize) win.style.transform = `scale(${Math.random() * 1.2 + 0.6})`;
 
     let innerHtml = `
-        <div class="window-header">
-            <span>${isGlitch ? 'ERROR_FATAL.SYS' : 'SYSTEM_MEMORY_LOG.TXT'}</span>
-            <span class="close-btn">[X]</span>
-        </div>
+        <div class="window-header"><span>${isGlitch ? 'ERROR_FATAL.SYS' : 'SYSTEM_MEMORY_LOG.TXT'}</span><span class="close-btn">[X]</span></div>
         <div class="window-body"><p class="${isGlitch ? 'glitch-text' : ''}">> ${text}</p></div>
     `;
     win.innerHTML = innerHtml;
     uiLayer.appendChild(win);
 
     win.querySelector('.close-btn').addEventListener('click', () => {
-        if(gameState === "SCARE") return; // Cannot close during scare
-        win.remove();
-        showNextLog();
+        if(gameState === "SCARE") return;
+        win.remove(); showNextLog();
     });
-
     noteSound.currentTime = 0; noteSound.play().catch(()=>{});
 }
 
@@ -184,7 +171,6 @@ function showNextLog() {
         isInteracting = false;
         if (gameState === "INTRO") { gameState = "EXPLORE"; bgmNorm.play().catch(()=>{}); }
         else if (gameState === "EXPLORE") { checkExplorationComplete(); }
-        else if (gameState === "WAKEUP") { document.getElementById('black-screen').style.display = 'flex'; }
     }
 }
 
@@ -208,51 +194,47 @@ function startCutscene() {
     gameState = "CUTSCENE";
     isInteracting = true;
     bgmNorm.pause();
-    
     ambientLight.intensity = 0.1; ceilingLight.intensity = 2;
     screenMat.color = new THREE.Color(0xffffff); screenMat.emissive = new THREE.Color(0x88ff88);
     screenLight.intensity = 5;
-    
-    // Add noise overlay
     noiseOverlay.style.opacity = 0.5;
+    darkFigure.visible = true;
 }
 
-// MOVEMENT LOGIC
 const keys = {};
 window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
 window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
 let targetRotation = 0;
 
 function handleMovement(time) {
-    if (isInteracting && gameState !== "CUTSCENE") return;
+    if (isInteracting && gameState !== "CUTSCENE" && gameState !== "WAKEUP_CUTSCENE") return;
 
     if (gameState === "CUTSCENE") {
         cutsceneTimer += 0.01;
         
-        // VERY slow approach
         playerModel.position.x = THREE.MathUtils.lerp(playerModel.position.x, 0, 0.005);
         playerModel.position.z = THREE.MathUtils.lerp(playerModel.position.z, -5, 0.005);
         playerModel.rotation.y = THREE.MathUtils.lerp(playerModel.rotation.y, Math.PI, 0.02);
-        
-        leftLegPivot.rotation.x = Math.sin(time * 3) * 0.3; // Slower steps
-        rightLegPivot.rotation.x = Math.sin(time * 3 + Math.PI) * 0.3;
+        leftLegPivot.rotation.x = Math.sin(time * 3) * 0.3; rightLegPivot.rotation.x = Math.sin(time * 3 + Math.PI) * 0.3;
 
-        // Dark figure rises from floor behind player
-        darkFigure.visible = true;
-        darkFigure.position.y = THREE.MathUtils.lerp(darkFigure.position.y, 0, 0.01);
+        if (cutsceneTimer > 0.5) {
+            darkFigure.position.x = THREE.MathUtils.lerp(darkFigure.position.x, playerModel.position.x, 0.001);
+            darkFigure.position.z = THREE.MathUtils.lerp(darkFigure.position.z, playerModel.position.z + 2, 0.001);
+            darkFigure.position.y = Math.abs(Math.sin(time * 2)) * 0.05;
+            darkFigure.scale.setScalar(1 + (cutsceneTimer * 0.01));
+            ambientLight.intensity = Math.max(0, ambientLight.intensity - 0.0005);
+            darkFigure.lookAt(playerModel.position);
+        }
 
         if (cutsceneTimer > 1 && cutsceneTimer < 1.02) { createLogWindow("why?"); }
         if (cutsceneTimer > 3 && cutsceneTimer < 3.02) { createLogWindow("was that necessary?"); }
         if (cutsceneTimer > 5 && cutsceneTimer < 5.02) { createLogWindow("not found."); }
         
         if (cutsceneTimer > 8) {
-            uiLayer.innerHTML = ''; // Clear logs
+            uiLayer.innerHTML = '';
             leftLegPivot.rotation.x = 0; rightLegPivot.rotation.x = 0;
-            playerModel.position.y = Math.sin(time * 50) * 0.05; // Shake
-            
-            if (cutsceneTimer > 10) {
-                gameState = "SCARE"; executeScare();
-            }
+            playerModel.position.y = Math.sin(time * 50) * 0.05; 
+            if (cutsceneTimer > 10) { gameState = "SCARE"; executeScare(); }
         }
         
         camera.position.x = THREE.MathUtils.lerp(camera.position.x, playerModel.position.x, 0.05);
@@ -260,7 +242,24 @@ function handleMovement(time) {
         return;
     }
 
-    const speed = 0.05; // SLOWER General Movement
+    if (gameState === "WAKEUP_CUTSCENE") {
+        cutsceneTimer += 0.01;
+        playerModel.position.x = THREE.MathUtils.lerp(playerModel.position.x, 0, 0.01);
+        playerModel.position.z = THREE.MathUtils.lerp(playerModel.position.z, -5, 0.01);
+        playerModel.position.y = Math.abs(Math.sin(time * 3)) * 0.05; 
+        
+        if (cutsceneTimer > 3) {
+            screenMat.emissive = new THREE.Color(0x000000);
+            screenLight.intensity = 0;
+            if (cutsceneTimer > 4) {
+                gameState = "ENDED";
+                document.getElementById('black-screen').style.display = 'flex';
+                setTimeout(() => { document.getElementById('ending-choices').style.display = 'block'; }, 2000);
+            }
+        }
+    }
+
+    const speed = 0.05;
     let moving = false; let moveX = 0, moveZ = 0;
 
     if (keys['w'] || keys['arrowup']) { moveZ -= speed; moving = true; }
@@ -268,18 +267,16 @@ function handleMovement(time) {
     if (keys['a'] || keys['arrowleft']) { moveX -= speed; moving = true; }
     if (keys['d'] || keys['arrowright']) { moveX += speed; moving = true; }
 
-    if (moving) {
+    if (moving && gameState === "EXPLORE") {
         let newX = playerModel.position.x + moveX; let newZ = playerModel.position.z + moveZ;
         if (newX > 7) newX = 7; if (newX < -7) newX = -7;
         if (newZ > 7) newZ = 7; if (newZ < -7) newZ = -7;
-        playerModel.position.x = newX; playerModel.position.z = newZ;
-        targetRotation = Math.atan2(moveX, moveZ);
         
-        if (gameState === "EXPLORE") {
-            leftLegPivot.rotation.x = Math.sin(time * 8) * 0.5; rightLegPivot.rotation.x = Math.sin(time * 8 + Math.PI) * 0.5;
-        } else if (gameState === "WAKEUP") {
-            playerModel.position.y = Math.abs(Math.sin(time * 3)) * 0.05; 
-        }
+        if (!checkCollision(newX, playerModel.position.z)) playerModel.position.x = newX;
+        if (!checkCollision(playerModel.position.x, newZ)) playerModel.position.z = newZ;
+        
+        targetRotation = Math.atan2(moveX, moveZ);
+        leftLegPivot.rotation.x = Math.sin(time * 8) * 0.5; rightLegPivot.rotation.x = Math.sin(time * 8 + Math.PI) * 0.5;
     } else {
         if (gameState === "EXPLORE") {
             leftLegPivot.rotation.x = THREE.MathUtils.lerp(leftLegPivot.rotation.x, 0, 0.1);
@@ -287,26 +284,19 @@ function handleMovement(time) {
         }
     }
 
-    if (moving) {
+    if (moving && gameState === "EXPLORE") {
         let diff = targetRotation - playerModel.rotation.y;
         diff = Math.atan2(Math.sin(diff), Math.cos(diff)); 
         playerModel.rotation.y += diff * 0.15;
     }
 
-    // Proximity Detection
     let nearSomething = false;
     if (gameState === "EXPLORE") {
         for (const [key, item] of Object.entries(interactions)) {
             if (key !== "computer" && !item.explored && playerModel.position.distanceTo(item.pos) < item.radius) {
                 nearSomething = true; currentFocusKey = key;
-                interactBtn.style.display = 'block';
-                break;
+                interactBtn.style.display = 'block'; break;
             }
-        }
-    } else if (gameState === "WAKEUP") {
-        if (!interactions.computer.explored && playerModel.position.distanceTo(interactions.computer.pos) < 3) {
-            nearSomething = true; currentFocusKey = "computer";
-            interactBtn.style.display = 'block';
         }
     }
     if (!nearSomething && !isInteracting) { interactBtn.style.display = 'none'; currentFocusKey = null; }
@@ -320,7 +310,6 @@ function executeScare() {
     ambientLight.intensity = 0; ceilingLight.intensity = 0; screenLight.intensity = 0;
     noiseOverlay.style.opacity = 1;
 
-    // SPAM LOGS
     let spams = 0;
     const spamInterval = setInterval(() => {
         const gibberish = "CAN YOU HEAR ME IT'S COLD WAKE UP NO NO NO".split('').map(c => Math.random() > 0.5 ? c : '!@#$%'[(Math.floor(Math.random()*5))]).join('');
@@ -328,24 +317,20 @@ function executeScare() {
         spams++;
         if(spams > 30) {
             clearInterval(spamInterval);
+            bgmScary.pause(); noteSound.pause(); uiLayer.innerHTML = '';
             
-            // SUDDEN SILENCE
-            bgmScary.pause();
-            noteSound.pause();
-            uiLayer.innerHTML = '';
-            
-            // RHETORICAL ANXIOUS QUESTIONS
             const qs = ["Was it easier to close your eyes?", "Did you think hiding would erase it?", "Who is really trapped here?"];
             let qIdx = 0;
             const qInt = setInterval(() => {
                 if (qIdx < qs.length) {
-                    const blackScreen = document.getElementById('black-screen');
-                    blackScreen.style.display = 'flex';
+                    const bs = document.getElementById('black-screen');
+                    bs.style.display = 'flex';
                     document.getElementById('ending-text').innerText = qs[qIdx];
                     qIdx++;
                 } else {
                     clearInterval(qInt);
                     document.getElementById('black-screen').style.display = 'none';
+                    document.getElementById('ending-text').innerText = "CONNECTION LOST."; 
                     transformRoomToReality();
                 }
             }, 3000);
@@ -354,8 +339,9 @@ function executeScare() {
 }
 
 function transformRoomToReality() {
-    gameState = "WAKEUP";
-    isInteracting = false;
+    gameState = "WAKEUP_CUTSCENE";
+    cutsceneTimer = 0;
+    isInteracting = true;
     noiseOverlay.style.opacity = 0;
     
     toys.forEach(t => roomGroup.remove(t)); roomGroup.remove(bed);
@@ -368,24 +354,22 @@ function transformRoomToReality() {
 
     scene.remove(character);
     playerModel = darkFigure;
-    playerModel.position.set(0, 0, 5);
-    playerModel.rotation.y = 0;
+    darkFigure.scale.setScalar(1);
+    playerModel.position.set(0, 0, 5); 
+    playerModel.rotation.y = Math.PI; 
 }
 
-// ENDING CHOICES LOGIC
 document.getElementById('choice-back').addEventListener('click', () => {
     document.getElementById('black-screen').style.display = 'none';
-    playerModel.rotation.y = 0; // Figure turns around to face camera
-    camera.position.set(0, 4, 8); // Move camera close
+    playerModel.rotation.y = 0; 
+    camera.position.set(0, 4, -2); 
 });
 
 document.getElementById('choice-point').addEventListener('click', () => {
     window.close();
-    // Fallback if browser blocks close
     document.body.innerHTML = "<h1 style='color:white; text-align:center; margin-top:20%'>...</h1>";
 });
 
-// START
 document.getElementById('start-overlay').addEventListener('click', function() {
     this.style.display = 'none';
     setTimeout(() => {
@@ -399,9 +383,5 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight); composer.setSize(window.innerWidth, window.innerHeight);
 });
 
-function animate() {
-    requestAnimationFrame(animate);
-    handleMovement(clock.getElapsedTime());
-    composer.render();
-}
+function animate() { requestAnimationFrame(animate); handleMovement(clock.getElapsedTime()); composer.render(); }
 animate();

@@ -6,25 +6,62 @@
     <title>Cold Memory - 200X</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
+        
+        #noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0; pointer-events: none; z-index: 50; transition: opacity 2s;
+        }
+
+        /* Balanced Logs */
+        .window {
+            background: #c0c0c0; border: 3px solid #fff; border-bottom-color: #000; border-right-color: #000;
+            padding: 4px; font-family: 'Courier New', Courier, monospace;
+            width: 500px; box-shadow: 4px 4px 10px rgba(0,0,0,0.8);
+        }
+        .window-header {
+            background: #000080; color: white; padding: 8px 15px; font-size: 22px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .window-body { padding: 25px; background: white; color: black; min-height: 100px; line-height: 1.4; font-size: 26px; font-weight: bold; }
+        .close-btn { cursor: pointer; background: #c0c0c0; color: black; padding: 0 8px; border: 2px solid #fff; border-bottom-color: #000; border-right-color: #000; font-size: 20px; }
+        
+        .log-container { position: absolute; z-index: 60; }
+        
         .glitch-text {
-            color: #ff0000;
-            font-weight: bold;
-            text-shadow: 2px 0px 1px blue, -2px 0px 1px lime;
-            animation: shake 0.2s infinite;
+            color: #ff0000; font-weight: bold; text-shadow: 3px 0px 1px blue, -3px 0px 1px lime;
+            animation: shake 0.15s infinite;
         }
         @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+            0% { transform: translate(2px, 2px) rotate(0deg); }
+            10% { transform: translate(-2px, -3px) rotate(-1deg); }
+            50% { transform: translate(-2px, 3px) rotate(-1deg); }
+            100% { transform: translate(2px, -3px) rotate(-1deg); }
         }
+
+        #interact-btn {
+            position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.9); color: white; padding: 15px 30px;
+            font-family: monospace; font-size: 20px; border: 2px solid white;
+            cursor: pointer; display: none; z-index: 40; font-weight: bold;
+        }
+
+        #start-overlay {
+            position: absolute; top:0; left:0; width:100%; height:100%; z-index: 100;
+            background: rgba(0,0,0,0.9); color: white; display: flex; align-items: center;
+            justify-content: center; font-family: monospace; font-size: 24px; cursor: pointer; flex-direction: column;
+        }
+
+        #black-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: black; color: white; display: none; z-index: 100;
+            flex-direction: column; align-items: center; justify-content: center;
+            font-family: monospace; text-align: center;
+        }
+        #ending-text { font-size: 32px; margin-bottom: 20px; }
+        .ending-choice { margin-top: 30px; cursor: pointer; opacity: 0.7; font-size: 20px; }
+        .ending-choice:hover { opacity: 1; text-decoration: underline; }
     </style>
     <script type="importmap">
     {
@@ -36,23 +73,3 @@
     </script>
 </head>
 <body>
-    <div id="canvas-container"></div>
-
-    <div id="retro-ui" style="display: none;">
-        <div class="window" id="log-window">
-            <div class="window-header">
-                <span id="window-title">SYSTEM_MEMORY_LOG.TXT</span>
-                <span class="close-btn" id="close-log">[X]</span>
-            </div>
-            <div class="window-body" id="log-text"></div>
-        </div>
-    </div>
-
-    <div id="start-overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; z-index: 100; background: rgba(0,0,0,0.9); color: white; display: flex; align-items: center; justify-content: center; font-family: monospace; cursor: pointer; flex-direction: column;">
-        <p>[ CLICK TO WAKE UP ]</p>
-        <p style="font-size: 10px; color: #555; margin-top: 10px;">(Use WASD to explore)</p>
-    </div>
-
-    <script type="module" src="app.js"></script>
-</body>
-</html>
