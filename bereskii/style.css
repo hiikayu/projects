@@ -1,0 +1,85 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #050508;
+    font-family: "Courier New", Courier, monospace;
+    color: #e0e0e0;
+}
+
+/* 3D Canvas Container */
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Retro CRT/Scanline Overlay Effect */
+body::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+    background-size: 100% 4px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* 2D Uncanny Pop-up Windows */
+#retro-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none; /* Allows clicking through to 3D world */
+}
+
+.window {
+    pointer-events: auto;
+    position: absolute;
+    top: 15%;
+    left: 10%;
+    width: 320px;
+    background: #c0c0c0;
+    border: 2px solid #ffffff;
+    border-right-color: #404040;
+    border-bottom-color: #404040;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+    color: #000;
+}
+
+.window-header {
+    background: #000080;
+    color: #fff;
+    padding: 3px 6px;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+.close-btn {
+    cursor: pointer;
+}
+
+.window-body {
+    padding: 10px;
+    font-size: 11px;
+    line-height: 1.4;
+    background: #ffffff;
+    margin: 2px;
+    border: 1px solid #808080;
+}
