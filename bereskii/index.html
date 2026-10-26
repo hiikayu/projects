@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cold Memory - 200X</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Cold Memory</title>
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
         
@@ -14,7 +13,6 @@
             opacity: 0; pointer-events: none; z-index: 50; transition: opacity 2s;
         }
 
-        /* Balanced Logs */
         .window {
             background: #c0c0c0; border: 3px solid #fff; border-bottom-color: #000; border-right-color: #000;
             padding: 4px; font-family: 'Courier New', Courier, monospace;
@@ -63,6 +61,8 @@
         .ending-choice { margin-top: 30px; cursor: pointer; opacity: 0.7; font-size: 20px; }
         .ending-choice:hover { opacity: 1; text-decoration: underline; }
     </style>
+    
+    <!-- Three.js Import Map -->
     <script type="importmap">
     {
         "imports": {
@@ -73,3 +73,22 @@
     </script>
 </head>
 <body>
+    <div id="canvas-container"></div>
+    <div id="noise-overlay"></div>
+    <div id="ui-layer"></div>
+    <div id="interact-btn">[ CLICK TO INTERACT ]</div>
+    <div id="start-overlay"><p>[ CLICK TO WAKE UP ]</p></div>
+
+    <!-- Ending Sequence UI Elements -->
+    <div id="black-screen">
+        <h1 id="ending-text">CONNECTION LOST.</h1>
+        <div id="ending-choices" style="display:none;">
+            <p class="ending-choice" id="choice-back">(go back.)</p>
+            <p class="ending-choice" id="choice-point">(there is no point.)</p>
+        </div>
+    </div>
+
+    <!-- Link to your separated JS file -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
