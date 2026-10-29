@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cold Memory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Pixelify+Sans:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <!-- screen-space atmosphere -->
+    <canvas id="noise-overlay" width="160" height="90"></canvas>
+    <div id="frost"></div>
+    <div id="flash"></div>
+
+    <!-- HUD -->
+    <div id="hud">
+        <div id="chapter"></div>
+        <div id="objective"></div>
+        <div id="stamina"><i></i></div>
+    </div>
+    <div id="ui-layer"></div>
+    <div id="toast"></div>
+    <button id="interact-btn"></button>
+    <div id="joy"><i></i></div>
+
+    <!-- taskbar -->
+    <div id="taskbar">
+        <div id="start-btn"><i class="star"></i>remember</div>
+        <div id="tasks"></div>
+        <div id="tray"><i class="tray-ico vol"></i><i class="tray-ico net" id="net-ico"></i><span id="clock">7:42 PM</span></div>
+        <div id="balloon"><b></b><span></span><i class="x">&times;</i></div>
+    </div>
+
+    <!-- welcome / login screen -->
+    <div id="login">
+        <div class="bar top"></div>
+        <div class="mid">
+            <div class="left">
+                <div class="game-title">COLD<br>MEMORY</div>
+                <div class="logo">mem<span class="os">OS</span><sup>2004</sup></div>
+                <div class="welcome-msg">To begin, click your user name</div>
+            </div>
+            <div class="divider"></div>
+            <div class="right" id="users"></div>
+        </div>
+        <div class="bar bottom">
+            <div id="power"><i></i>Turn off memory</div>
+            <div class="tip">After you log on, you can't leave until you've remembered everything.<br>
+                <b>WASD / arrows</b> move &middot; <b>E / click</b> interact &middot; <b>SHIFT</b> run &middot; touch: drag to move<br>headphones recommended</div>
+        </div>
+        <div id="welcome"><span>welcome</span><small id="welcome-sub">loading your personal memories...</small></div>
+        <div id="login-dialog"></div>
+    </div>
+
+    <!-- endings / interstitials -->
+    <div id="black-screen">
+        <h1 id="ending-text"></h1>
+        <p id="ending-sub"></p>
+        <p id="ending-label"></p>
+        <div id="ending-btns"></div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
